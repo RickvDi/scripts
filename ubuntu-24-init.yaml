@@ -47,6 +47,8 @@ write_files:
 
 # Voer de volgende commando's uit
 runcmd:
+  # installeer Linuxbrew (voor gebruiker rick) 
+  - sudo -u rick /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   # Maak de mappen aan
   - mkdir /etc/containerd
   - sudo -u rick mkdir -p /home/rick/.config /home/rick/.fonts /home/rick/.starship/cache
@@ -55,17 +57,16 @@ runcmd:
   # Verander de optie SystemdCgroup naar true
   # Schakel swap uit
   - swapoff -a
-  # Controleer file /etc/fstab
-  # Schakel bridging in in /etc/sysctl.conf
+  # Schakel bridging in door net.ipv4.ip_forward=1 actief te maken
+  - sed -i '/net.ipv4.ip_forward/s/^#//g' /etc/sysctl.conf
   # Schakel br_netfilter in
   - echo br_netfilter > /etc/modules-load.d/k8s.conf
-  # Download Jetbrains Mono Nerd Font en installeer in de .fonts folder
-  - wget -P /home/rick/.fonts https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip
-  - cd /home/rick/.fonts && unzip JetBrainsMono.zip && rm JetBrainsMono.zip && fc-cache -fv
+  # Installeer font Droid Sans Mono Nerd Font met Linuxbrew
+  - sudo -u rick brew install font-droid-sans-mono-nerd-font
+  # Vernieuw font cache
+  - fc-cache -fv
   # Download de Kubernetes keyring
-  - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
-  # Update en installeer packages
-  - apt update && apt full-upgrade -y
+  - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   # Activeer SSH
   - systemctl enable --now ssh
   # Start Qemu Guest Agent
@@ -80,7 +81,7 @@ runcmd:
   - sudo -u rick git clone https://github.com/zsh-users/zsh-autosuggestions.git /home/rick/.oh-my-zsh/custom/plugins/zsh-autosuggestions
   - sudo -u rick git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /home/rick/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
   - echo "plugins=(git zsh-autosuggestions zsh-syntax-highlighting eza starship kubectl chucknorris)" >> /home/rick/.zshrc
-  - git clone h
+  - sudo -u rick curl -fsSL https://raw.githubusercontent.com/RickvDi/scripts/refs/heads/main/starship.toml -o /home/rick/.config/starship.toml 
   - echo "export STARSHIP_CACHE=/home/rick/.starship/cache" >> /home/rick/.zshrc
   # Stel wat instelling in in .zshrc
   - echo "export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH" >> /home/rick/.zshrc
@@ -98,8 +99,10 @@ runcmd:
   - echo "HIST_STAMPS='dd/mm/yy'" >> /home/rick/.zshrc
   # Eigen welkomsbericht
   - echo 'echo -e "\n🌟 Welcome to your Proxmox Cloud VM with Kubernetes tools!\n"' >> /home/rick/.zshrc
-
-# Maak gebruiker aan, zet in juiste groep, stel wachtwoord in, stel standaard shell in en stel ssh geautoriseerde hosts in
+  - test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+  - test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  - echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.zshrc
+  # Maak gebruiker aan, zet in juiste groep, stel wachtwoord in, stel standaard shell in en stel ssh geautoriseerde hosts in
 users:
   - name: rick
     gecos: Rick van Diem
