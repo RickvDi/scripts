@@ -1,0 +1,125 @@
+#cloud-config
+
+manage_etc_hosts: true
+
+# Behoud de orginele bron lijsten en voeg bron lijst van Kubernetes toe
+apt:
+  preserve_sources_list: true
+  sources:
+    kubernetes.list:
+      keyid: "DE15B14486CD377B9E876E1A234654DA9A296436"
+      keyserver: https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key
+      source: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /"
+
+# Update en Upgrade packages
+package_update: true
+package_upgrade: true
+
+# Installeer packages
+packages:
+  - build-essential
+  - apt-transport-https
+  - zsh
+  - zsh-doc
+  - containerd
+  - runc
+  - qemu-guest-agent
+  - pwgen
+  - openssh-server
+  - net-tools
+  - kubeadm
+  - kubectl
+  - kubelet
+  - fortunes
+  - fortune-mod
+  - fontconfig
+  - eza
+  - unzip
+
+# Maak file zodat gebruiker NOPASSWD sudo heeft
+write_files:
+  - path: /etc/sudoers.d/rick
+    owner: root:root
+    permissions: '0440'
+    content: |
+      # Allow user rick to run sudo without password
+      rick ALL=(ALL) NOPASSWD:ALL
+
+# Voer de volgende commando's uit
+runcmd:
+  # Maak de mappen aan
+  - mkdir /etc/containerd
+  - sudo -u rick mkdir -p /home/rick/.config /home/rick/.fonts /home/rick/.starship/cache
+  # Maak de eerste configuratie voor containerd
+  - containerd config default | tee /etc/containerd/config.toml
+  # Verander de optie SystemdCgroup naar true
+  # Schakel swap uit
+  - swapoff -a
+  # Controleer file /etc/fstab
+  # Schakel bridging in in /etc/sysctl.conf
+  # Schakel br_netfilter in
+  - echo br_netfilter > /etc/modules-load.d/k8s.conf
+  # Download Jetbrains Mono Nerd Font en installeer in de .fonts folder
+  - wget -P /home/rick/.fonts https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip
+  - cd /home/rick/.fonts && unzip JetBrainsMono.zip && rm JetBrainsMono.zip && fc-cache -fv
+  # Download de Kubernetes keyring
+  - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+  # Update en installeer packages
+  - apt update && apt full-upgrade -y
+  # Activeer SSH
+  - systemctl enable --now ssh
+  # Start Qemu Guest Agent
+  - systemctl start qemu-guest-agent
+  # Installeer Oh My Zsh voor gebruiker rick
+  - sudo -u rick  sh -c "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
+  # Installeer Starship.rs voor gebruiker rick en geef daarna sudo machtiging voor sh command
+  - sudo -u rick sh -c 'curl -fsSL https://starship.rs/install.sh | sudo sh -s -- -y'
+  # Voeg starship toe aan .zshrc
+  - echo 'eval "$(starship init zsh)"' >> /home/rick/.zshrc
+  # Voeg een paar handige plugins en thema toe
+  - sudo -u rick git clone https://github.com/zsh-users/zsh-autosuggestions.git /home/rick/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+  - sudo -u rick git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /home/rick/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+  - echo "plugins=(git zsh-autosuggestions zsh-syntax-highlighting eza starship kubectl chucknorris)" >> /home/rick/.zshrc
+  - git clone h
+  - echo "export STARSHIP_CACHE=/home/rick/.starship/cache" >> /home/rick/.zshrc
+  # Stel wat instelling in in .zshrc
+  - echo "export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH" >> /home/rick/.zshrc
+  - echo "export ZSH='/home/rick/.oh-my-zsh'" >> /home/rick/.zshrc
+  - echo "source \$ZSH/oh-my-zsh.sh" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:plugins:eza' 'dirs-first' yes" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:plugins:eza' 'git-status' yes" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:plugins:eza' 'header' yes" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:plugins:eza' 'show-group' yes" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:plugins:eza' 'icons' yes" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:plugins:eza' 'size-prefix' yes" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:plugins:eza' 'time-style' +%A %d-%B-%Y %H:%M %Z" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:update' mode auto" >> /home/rick/.zshrc
+  - echo "zstyle ':omz:update' frequency 14" >> /home/rick/.zshrc
+  - echo "HIST_STAMPS='dd/mm/yy'" >> /home/rick/.zshrc
+  # Eigen welkomsbericht
+  - echo 'echo -e "\n🌟 Welcome to your Proxmox Cloud VM with Kubernetes tools!\n"' >> /home/rick/.zshrc
+
+# Maak gebruiker aan, zet in juiste groep, stel wachtwoord in, stel standaard shell in en stel ssh geautoriseerde hosts in
+users:
+  - name: rick
+    gecos: Rick van Diem
+    groups: users,sudo
+    lock_passwd: false
+    passwd: $6$rounds=4096$7ii8TMBS5jiS8cJy$isy943bleeTXE13mPwmFih6L9pamEGJl0f0LMLOL5PL.zWOh17fq4ZP111Nf9ImUnTbso58loDMPoCfmFdAvI.
+    shell: /bin/zsh
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQD59jAYDgdAmvq42XQoHSK5wt2GsxEYtAYq6IkZc83tgUqI8CkeBrNHkWpDXUQf5coAKeCCohZjT6rnd9ZJw2Pdm7BTTsZbkg1HOnIpOSHptB029uFs/VdglpoVW67E/NZeNbERBOBCpp2c5aX/3LRzdm8/4lPSGSEtIcEJqb4gAmLOY4qt19XWwJZjUJ0PbL3Gami7P3iJnUIaY6YKDa5XChPyX5XI6QHFYH+i4yy2nGPGMXxtK0YfiLMyiVt8ocMeoTfSQc2IAvN3xmQNmxzvGXlDAC5wVCLFhsu4yEsUPBtJOIMehQET7dqIP7cQR91TyNZku7f8s0/mI3SCAbVN9S2PxvMNKD8n+aYckUkwvRCRJE+hWDLl9B6vnY18KUtraCsic8jIgU8VXRKCXoFH7HcygOzCOo4QiQ1w8zptRVYxsVXd1W9uK7e9FGIFd/ZEdLUwu+JqhEVpNeRNAsj+7/thBoj1G3pegozrHy2LWCZ15IJ/qgX+OfxZ4EupqbjuYAGd2Y3BKXgnxqrifhKZv9VuCWSIwhPu+dZEAqSY/fvTuo0Yh4QKun6e1Xu1ni5PXfBL6wJ506Qeq9MfUtM45kbg7MpcHLs1gSgbLUwEYfV58sG7CaGPU1CmwevuOwBeDhQuxvjNXA1ydGJnpc97GmkiG8Qe4fSvDDldaF5nxQ== rick@Ricks-Mac-mini.local
+
+# Stel de lokale tjdzone in
+timezone: Europe/Amsterdam
+
+# Sta wachtwoord authenticatie voor SSH niet toe
+ssh_pwauth: false
+
+# Stel locale in
+locale: en_US.UTF-8
+
+# Koppel de machine aan Ubuntu Pro
+ubuntu_pro:
+  enable: ["esm-apps", "esm-infra", "livepatch"]
+  token: "C1MYeXzdchDdjsmb2wyERBrca1fPY"
