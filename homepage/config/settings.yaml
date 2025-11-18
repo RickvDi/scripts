@@ -1,0 +1,18 @@
+# For configuration options and examples, please see:
+# https://github.com/benphelps/homepage/wiki/Settings
+
+title: Ricks ICT Services homepage
+
+theme: dark
+
+color: slate
+
+headerStyle: clean
+
+target: _blank
+
+providers:
+  openweathermap: 4b1d8689565b292e10f94d992e4e62ee
+  weatherapi: weatherapiapikey
+
+hideVersion: true

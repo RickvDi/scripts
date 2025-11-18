@@ -1,0 +1,70 @@
+version: "3.8"
+services:
+  seafile-mysql:
+    restart: unless-stopped
+    image: mariadb:10.11
+    volumes:
+      - /home/rick/docker/seafile-mysql/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=Rvd@1986@0922
+      - MYSQL_LOG_CONSOLE=true
+    networks:
+      - seafile-net
+  seafile-memcached:
+    restart: unless-stopped
+    image: memcached:1.6.18
+    entrypoint: memcached -m 256
+    networks:
+      - seafile-net
+  seafile-elasticsearch:
+    restart: unless-stopped
+    image: elasticsearch:8.6.2
+    volumes:
+      - /home/rick/docker/seafile-elasticsearch/data:/usr/share/elasticsearch/data
+    networks:
+      - seafile-net
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 2g
+  seafile:
+    restart: unless-stopped
+    image: docker.seadrive.org/seafileltd/seafile-pro-mc:latest
+    ports:
+      - 82:80
+    volumes:
+      - /home/rick/docker/seafile-data:/shared
+    environment:
+      - DB_HOST=seafile-mysql
+      - DB_ROOT_PASSWD=Rvd@1986@0922
+      - TIME_ZONE=Europe/Amsterdam
+      - SEAFILE_ADMIN_EMAIL=rick@ricksictservices.nl
+      - SEAFILE_ADMIN_PASSWORD=cicxor-rawgy3-gihGuc
+      - SEAFILE_SERVER_LETSENCRYPT=false
+      - SEAFILE_SERVER_HOSTNAME=sync.ricksictservices.nl
+    networks:
+      - seafile-net
+    depends_on:
+      - seafile-mysql
+      - seafile-memcached
+      - seafile-elasticsearch
+  seafile-oods:
+    restart: unless-stopped
+    image: onlyoffice/documentserver:latest
+    networks:
+      - seafile-net
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcyMDA4Nzc0NiwiaWF0IjoxNzIwMDg3NzQ2fQ.TBNSS9RyqyGe8Z-o1ShLJZncQMqa8iSK1oVfjKMmhhY
+  seafile-clamav:
+    restart: unless-stopped
+    image: clamav/clamav:latest
+    networks:
+      - seafile-net
+networks:
+  seafile-net: {}

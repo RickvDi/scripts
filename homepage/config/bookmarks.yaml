@@ -1,0 +1,25 @@
+# For configuration options and examples, please see:
+# https://github.com/benphelps/homepage/wiki/Bookmarks
+
+- Developer:
+  - Github:
+    - abbr: GH
+      href: https://github.com/
+  - StackOverflow:
+    - abbr: SO
+      href: https://stackoverflow.com
+
+- Entertainment:
+  - YouTube:
+    - abbr: YT
+      href: https://youtube.com/
+
+- Domain Registration:
+  - Transip:
+    - abbr: TI
+      href: https://www.transip.nl/cp
+
+- Homepage:
+  - Ricks ICT Services:
+    - abbr: RIS
+      href: https://www.ricksictservices.nl

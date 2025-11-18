@@ -1,0 +1,27 @@
+# For configuration options and examples, please see:
+# https://github.com/benphelps/homepage/wiki/Information-Widgets
+
+- resources:
+    cpu: false
+    memory: false
+    disk: /
+
+- search:
+    provider: google
+    target: _blank
+
+- datetime:
+    text_size: xs
+    format:
+       dateStyle: full
+       timeStyle: long
+       hour12: false
+
+- openweathermap:
+    label: Tilburg
+    latitude: 51.55551
+    longitude: 5.0913
+    units: metric
+    provider: openweathermap
+    apiKey: 4b1d8689565b292e10f94d992e4e62ee
+    cache: 5

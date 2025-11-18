@@ -1,0 +1,71 @@
+version: "3.8"
+services:
+  mariadb:
+    restart: unless-stopped
+    image: mariadb:latest
+    volumes:
+      - /home/rick/docker/photoprism/database:/var/lib/mysql
+    environment:
+      - MARIADB_AUTO_UPGRADE=1
+      - MARIADB_INITDB_SKIP_TZINFO=1
+      - MARIADB_DATABASE=photoprism
+      - MARIADB_USER=rick
+      - MARIADB_PASSWORD=Rvd@1986@0922
+      - MARIADB_ROOT_PASSWORD=Rvd@1986@0922
+    stop_grace_period: 5s
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    command: --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED
+      --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      --max-connections=512 --innodb-rollback-on-timeout=OFF
+      --innodb-lock-wait-timeout=120
+  photoprism:
+    restart: unless-stopped
+    image: photoprism/photoprism:latest
+    ports:
+      - 2342:2342
+    volumes:
+      - /home/rick/docker/photoprism/storage:/photoprism/storage
+      - /storage/media/photos:/photoprism/originals
+      - /storage/media/photos/import:/photoprism/import
+    depends_on:
+      - mariadb
+    environment:
+      - PHOTOPRISM_ADMIN_USER=admin
+      - PHOTOPRISM_ADMIN_PASSWORD=3sQFyjk3ghritx%@7hvx
+      - PHOTOPRISM_AUTH_MODE=password
+      - PHOTOPRISM_SITE_URL=http://localhost:2342/
+      - PHOTOPRISM_DISABLE_TLS=false
+      - PHOTOPRISM_DEFAULT_TLS=true
+      - PHOTOPRISM_ORIGINALS_LIMIT=5000
+      - PHOTOPRISM_HTTP_COMPRESSION=gzip
+      - PHOTOPRISM_LOG_LEVEL=debug
+      - PHOTOPRISM_READONLY=false
+      - PHOTOPRISM_EXPERIMENTAL=false
+      - PHOTOPRISM_DISABLE_CHOWN=false
+      - PHOTOPRISM_DISABLE_WEBDAV=false
+      - PHOTOPRISM_DISABLE_SETTINGS=false
+      - PHOTOPRISM_DISABLE_TENSORFLOW=false
+      - PHOTOPRISM_DISABLE_FACES=false
+      - PHOTOPRISM_DISABLE_CLASSIFICATION=false
+      - PHOTOPRISM_DISABLE_VECTORS=false
+      - PHOTOPRISM_DISABLE_RAW=false
+      - PHOTOPRISM_RAW_PRESETS=false
+      - PHOTOPRISM_JPEG_QUALITY=100
+      - PHOTOPRISM_DETECT_NSFW=false
+      - PHOTOPRISM_UPLOAD_NSFW=true
+      - PHOTOPRISM_DATABASE_DRIVER=mysql
+      - PHOTOPRISM_DATABASE_SERVER=mariadb:3306
+      - PHOTOPRISM_DATABASE_NAME=photoprism
+      - PHOTOPRISM_DATABASE_USER=rick
+      - PHOTOPRISM_DATABASE_PASSWORD=Rvd@1986@0922
+      - PHOTOPRISM_SITE_CAPTION=Ricks ICT Services Photo Server
+      - PHOTOPRISM_SITE_DESCRIPTION=Ricks ICT Services Photo Server
+      - PHOTOPRISM_SITE_AUTHOR=Rick van Diem
+    working_dir: /photoprism
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    stop_grace_period: 10s
+networks: {}

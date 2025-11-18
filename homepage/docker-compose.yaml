@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  homepage:
+    restart: unless-stopped
+    image: ghcr.io/gethomepage/homepage:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - /home/rick/docker/homepage/app/config:/app/config
+      - /home/rick/docker/homepage/icons:/app/public/icons
+      - /home/rick/docker/homepage/images:/app/public/images
+      - /var/run/docker.sock:/var/run/docker.sock
+networks: {}

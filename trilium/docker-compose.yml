@@ -1,0 +1,19 @@
+version: "3"
+networks:
+  frontend:
+services:
+  trilium:
+    image: zadam/trilium:latest
+    container_name: trilium
+    restart: always
+    environment:
+      - TRILIUM_DATA_DIR=/home/node/trilium-data
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/rick/docker/trilium/trilium-data:/home/node/trilium-data
+    networks:
+      - frontend
+
+volumes:
+  trilium:

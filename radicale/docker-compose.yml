@@ -1,0 +1,12 @@
+# docker-compose.yml
+version: '3.7'
+
+services:
+  app:
+    image: cupcakearmy/radicale:latest
+    container_name: rad2
+    restart: unless-stopped
+    volumes:
+      - /home/rick/docker/radicale/data:/data
+    ports:
+      - 5232:5232

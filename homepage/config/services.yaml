@@ -1,0 +1,94 @@
+# For configuration options and examples, please see:
+# https://github.com/benphelps/homepage/wiki/Services
+
+- Network:
+    - RICKS-ROUTER-01:
+        icon: /icons/opnsense.png
+        href: https://ricks-router-01.ricksictservices.nl
+        description: opnsense
+    - RICKS-AP-01:
+        icon: /icons/openwrt.png
+        href: https://ricks-ap-01.ricksictservices.nl
+        description: openWRT Belkin RT-3200
+    - RICKS-SWITCH-01:
+        icon: /icons/tp-link.png
+        href: https://ricks-switch-01.ricksictservices.nl
+        description: TP-Link TL-SG2008P
+
+- Hypervisor:
+    - RICKS-HYPERVISOR-01:
+        icon: /icons/proxmox.png
+        href: https://ricks-hypervisor-01.ricksictservices.nl
+        description: Proxmox
+
+- Docker managment:
+    - Dockge Media Server:
+        icon: /icons/dockge.png
+        href: https://dockge-media.ricksictservices.nl
+        description: Self hosted docker management service
+
+- Proxy:
+    - NGINX Proxy Manager:
+        icon: /icons/npm.png
+        href: https://proxy.ricksictservices.nl
+        description: GUI for NGINX Proxies
+
+- Authentication:
+    - Authentik:
+        icon: /icons/authentik.png
+        href: https://auth.ricksictservices.nl
+        description: Self hosted auth server
+
+- Documentation:
+    - Joplin:
+        icon: /icons/joplin.png
+        href: https://notes.ricksictservices.nl
+        description: Self hosted notes server
+    - Paperless:
+        icon: /icons/paperless.png
+        href: https://paperless.ricksictservices.nl
+        description: Self hosted document server
+
+- Downloaders:
+    - Qbittorrent:
+        icon: /icons/qbit.png
+        href: https://qbit.ricksictservices.nl
+        description: Self host torrent downloader
+    - Sabnzdb:
+        icon: /icons/sabnzdb.png
+        href: https://sabnzbd.ricksictservices.nl
+        description: Self hosted news server reader
+
+- Media:
+    - Jellyfin:
+        icon: /icons/jellyfin.png
+        href: https://media.ricksictservices.nl
+        description: Self hosted media server
+    - Photoprism:
+        icon: /icons/photoprism.png
+        href: https://photo.ricksictservices.nl
+        description: Self hosted photo server
+
+- Personal Music/Video Recorder:
+    - Lidarr:
+        icon: /icons/lidarr.png
+        href: https://lidarr.ricksictservices.nl
+        description: Self hosted PVR for music
+    - Radarr:
+        icon: /icons/radarr.png
+        href: https://radarr.ricksictservices.nl
+        description: Self hosted PVR for movies
+    - Sonarr:
+        icon: /icons/sonarr.png
+        href: https://sonarr.ricksictservices.nl
+        description: Self hosted PVR for series
+
+- File Sync Service:
+    - Seafile:
+        icon: /icons/seafile.png
+        href: https://sync.ricksictservices.nl
+        description: Self hosted file sync server
+
+
+
+

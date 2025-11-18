@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  mongo:
+    restart: always
+    container_name: quant-ux-mongo
+    image: mongo:4.4.17-rc0
+    volumes:
+      - ./data:/data/db        # pth for the data to be stored and kept on your host machine is on the left side of the ":"
+  qux-fe:
+    restart: always
+    container_name: quant-ux-frontend
+    image: bmcgonag/qux-fe
+    environment:
+      - QUX_PROXY_URL=http://quant-ux-backend:8080        # this is the path the front end uses to talk tot he backend
+    links:
+      - mongo
+      - qux-be
+    ports:
+      - 8082:8082        # change the left side port if your host machine already has 8082 in use
+    depends_on:
+      - qux-be
+  qux-be:
+    restart: always
+    container_name: quant-ux-backend
+    image: bmcgonag/qux-be
+    environment:
+      - QUX_HTTP_HOST=http://quant-ux-frontend:8082        # this is the path the backend uses to talk to the front end
+      - QUX_HTTP_PORT=8080        # This is the port the backend will use
+      - QUX_MONGO_DB_NAME=quantux        # the database / collection name in mongodb
+      - QUX_MONGO_TABLE_PREFIX=quantux        # table / document prefix in mongodb
+      - QUX_MONGO_CONNECTION_STRING=mongodb://quant-ux-mongo:27017        # this assumes your mongodb container will be called "quant-ux-mongo" in the docker-compose file
+      - QUX_JWT_PASSWORD=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.NHVaYe26MbtOYhSKkoKYdFVomg4i8ZJd8_-RU8VNbftc4TSMb4bXP3l3YlNWACwyXPGffz5aXHc6lty1Y2t4SWRqGteragsVdZufDn5BlnJl9pdR_kdVFUsra2rWKEofkZeIC4yWytE58sMIihvo9H1ScmmVwBcQP6XETqYd0aSHp1gOa9RdUPDvoXQ5oqygTqVtxaDr6wUFKrKItgBMzWIdNZ6y7O9E0DhEPTbE9rfBo6KTFsHAZnMg4k68CDp2woYIaXbmYTWcvbzIuHO7_37GT79XdIwkm95QJ7hYC9RiwrV7mesbY4PAahERJawntho0my942XheVLmGwLMBkQ        # you should change this to a real JWT secret
+      - QUX_IMAGE_FOLDER_USER=/qux-images        # just a folder name, change if you like
+      - QUX_IMAGE_FOLDER_APPS=/qux-image-apps        # just a folder name, change if you like
+      - TZ=Europe/Amsterdam        # change to your timezone
+    depends_on:
+      - mongo
